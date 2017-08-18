@@ -44,10 +44,12 @@ router.get("/login", function(req, res){
 router.post('/login', function(req, res){
   console.log(req.body);
 
-  req.checkBody("username", 'username must be 8 to 25 characters ').isByteLength({min:8, max:25});
+  req.checkBody("username", 'username must be 8 to 25 characters ').isLength({min:8, max:25});
   req.checkBody("username", "username cannot be empty.").notEmpty();
-  req.checkBody("password", 'password minimum of 8 characters required').isByteLength({min:8, max:25});
+  req.checkBody("password", 'password minimum of 8 characters required').isLength({min:8, max:25});
   req.checkBody("password", "password cannot be empty.").notEmpty();
+  req.checkBody("username", 'username cannot contain special characters ').isAlphanumeric();
+
 
   let errors = req.getValidationResult();
   let messages = [];
@@ -57,25 +59,42 @@ router.post('/login', function(req, res){
       messages.push(error.msg);
     })
     let obj = {
-    errors: messages,
-    username: req.body.username,
-    password: req.body.password,
-  }
+      errors: messages,
+      username: req.body.username,
+      password: req.body.password,
+    }
+
+    console.log("messages:" + messages);
+    console.log("messages.class:" + messages.constructor.name);
+    console.log("messages.length:" + messages.length);
+    if (obj.errors.length == 0){
+      req.session.user = obj;
+        req.session.token = "hjhhuioiejij3242324";
+        res.redirect("/");
 
 
+    }else{
+      console.log(obj.errors.length, "the number of errors");
+    }
 
 
-  // if (req.body.username && req.body.password) {
-
-    // console.log("errors");
+    //
+    // if (username == user.username && password == user.password) {
+    //   req.session.user= obj;
+    //   req.session.token = "ajlkjlkaj;ldkfj";
+    //   res.redirect("/");
+    // }else{
     res.render("error", obj);
-  // } else {
-  //
-  //   req.session.username = req.body.username;
-  //   // req.session.token = Math.floor(Math.random()* 1000000000);
-  //   res.redirect("/");
 
-  // }
+    // }
+    // console.log("errors");
+    // } else {
+    //
+    //   req.session.username = req.body.username;
+    //   // req.session.token = Math.floor(Math.random()* 1000000000);
+    //   res.redirect("/");
+
+    // }
   });
 });
 module.exports = router;
